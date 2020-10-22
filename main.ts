@@ -19,16 +19,23 @@ function valgResultatLEDskjerm () {
         led.plotBrightness(4 - (indeks - 20), 0, 100)
     }
 }
+function visGrønn () {
+    if (ja != 0) {
+        // For hver repetisjon settes en LEDpære til å være grønn på lenken. LEDlysene er nummererte, og hver repetisjon tenner et nytt lys i rekken.
+        for (let indeks = 0; indeks <= ja - 1; indeks++) {
+            strip.setPixelColor(indeks, neopixel.colors(NeoPixelColors.Green))
+        }
+    }
+}
 function valgResultatNeoPixel () {
     strip.clear()
-    // For hver repetisjon settes en LEDpære til å være grønn på lenken. LEDlysene er nummererte, og hver repetisjon tenner et nytt lys i rekken.
-    for (let indeks = 0; indeks <= ja - 1; indeks++) {
-        strip.setPixelColor(indeks, neopixel.colors(NeoPixelColors.Green))
+    if (ja + nei <= neoPixelLengde) {
+        visGrønn()
+        visRød()
+        strip.show()
+    } else {
+        ledLoop = true
     }
-    for (let indeks = 0; indeks <= nei - 1; indeks++) {
-        strip.setPixelColor(neoPixelLengde - indeks, neopixel.colors(NeoPixelColors.Red))
-    }
-    strip.show()
 }
 input.onButtonPressed(Button.A, function () {
     stemmeUrneÅpen = true
@@ -36,6 +43,11 @@ input.onButtonPressed(Button.A, function () {
     basic.showIcon(IconNames.Yes)
     ja = 0
     nei = 0
+    strip.clear()
+    strip.show()
+})
+input.onButtonPressed(Button.AB, function () {
+    radio.sendString("oops")
 })
 radio.onReceivedString(function (receivedString) {
     // Skal kun motta stemmer når valgurnen er åpen
@@ -44,8 +56,6 @@ radio.onReceivedString(function (receivedString) {
             ja += 1
         } else if (receivedString == "nei") {
             nei += 1
-        } else {
-        	
         }
     }
 })
@@ -57,6 +67,13 @@ input.onButtonPressed(Button.B, function () {
     valgResultatLEDskjerm()
     valgResultatNeoPixel()
 })
+function visRød () {
+    if (nei != 0) {
+        for (let indeks = 0; indeks <= nei; indeks++) {
+            strip.setPixelColor(neoPixelLengde - indeks, neopixel.colors(NeoPixelColors.Red))
+        }
+    }
+}
 /**
  * Dette er koden til mentometer-micro:biten!
  * 
@@ -68,6 +85,7 @@ input.onButtonPressed(Button.B, function () {
  * 
  * "Ja" og "Nei" er satt til 3 og 6 i dette eksempelet for å teste lyslenken/skjermen. Dette endres til 0 når du trykker på A.
  */
+let ledLoop = false
 let strip: neopixel.Strip = null
 let neoPixelLengde = 0
 let stemmeUrneÅpen = false
@@ -76,9 +94,20 @@ let ja = 0
 radio.setGroup(1)
 basic.showIcon(IconNames.Happy)
 ja = 8
-nei = 3
+nei = 12
 stemmeUrneÅpen = false
 // Endre dette tallet til antall lys på NeoPixel-lyslenken
-neoPixelLengde = 10
+neoPixelLengde = 20
 strip = neopixel.create(DigitalPin.P0, neoPixelLengde, NeoPixelMode.RGB)
 strip.clear()
+strip.show()
+basic.forever(function () {
+    if (ledLoop == true && stemmeUrneÅpen == false) {
+        visGrønn()
+        strip.show()
+        basic.pause(500)
+        visRød()
+        strip.show()
+        basic.pause(500)
+    }
+})
