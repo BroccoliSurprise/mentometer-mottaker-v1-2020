@@ -1,7 +1,8 @@
 function valgResultatUSB () {
-    serial.writeLine("Valgresultat:")
+    serial.writeLine("Valgresultat spørsmål " + spørsmålTeller)
     serial.writeValue("JA", ja)
     serial.writeValue("NEI", nei)
+    spørsmålTeller += 1
 }
 function valgResultatLEDskjerm () {
     basic.clearScreen()
@@ -92,6 +93,7 @@ function visRød () {
  * "Ja" og "Nei" er satt til 3 og 6 i dette eksempelet for å teste lyslenken/skjermen. Dette endres til 0 når du trykker på A.
  */
 let ledLoop = false
+let spørsmålTeller = 0
 let strip: neopixel.Strip = null
 let neoPixelLengde = 0
 let stemmeUrneÅpen = false
@@ -107,6 +109,8 @@ neoPixelLengde = 20
 strip = neopixel.create(DigitalPin.P0, neoPixelLengde, NeoPixelMode.RGB)
 strip.clear()
 strip.show()
+spørsmålTeller = 1
+// Denne løkken starter hvis lyslenken er for liten til å vise hele resultatet.
 basic.forever(function () {
     if (ledLoop == true && stemmeUrneÅpen == false) {
         visGrønn()
