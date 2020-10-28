@@ -1,3 +1,8 @@
+function valgResultatUSB () {
+    serial.writeLine("Valgresultat:")
+    serial.writeValue("JA", ja)
+    serial.writeValue("NEI", nei)
+}
 function valgResultatLEDskjerm () {
     basic.clearScreen()
     if (ja == 0 && nei == 0) {
@@ -66,6 +71,7 @@ input.onButtonPressed(Button.B, function () {
     basic.pause(1000)
     valgResultatLEDskjerm()
     valgResultatNeoPixel()
+    valgResultatUSB()
 })
 function visRød () {
     if (nei != 0) {
